@@ -9,14 +9,52 @@ import * as Yup from 'yup'
 import { validate } from 'email-validator';
 
 
-import { Image, StyleSheet, Text, View, ScrollView, SafeAreaView, Platform, TouchableOpacity, Pressable, TextInput, ImageBackground } from 'react-native'
+import { Image, StyleSheet, Text, View, ScrollView, SafeAreaView, Platform, TouchableOpacity, Pressable, TextInput, ImageBackground, ActivityIndicator, Button, KeyboardAvoidingView } from 'react-native'
+import { useState } from "react";
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { FIREBASE_AUTH } from "../firebaseConfig";
+import SignUp from "./SignUp";
 
 type Loginprops = NativeStackScreenProps<RootStactPramList, 'Login'>
 
+
+
 const Login=({navigation}: Loginprops)=> {
+    const [Email, setEmail] = useState("")
+    const [Password, setPassword] = useState("")
+    const [error, setError] = useState<string>("")
+    const [loading, setLoading] = useState(false)
+    const auth = FIREBASE_AUTH
+
+
+    const handleSignup =()=>{
+        if(
+            Email.length < 1 ||
+            Password.length < 1
+        )
+            setError("All fields are required")
+
+        else{
+            
+        }
+    }
+
+    const signIn = async () => {
+        setLoading(true);
+        try{
+            const response = await signInWithEmailAndPassword(auth, Email, Password)
+            console.log(response);
+        } catch (error: any){
+            console.log(error);
+            alert('sign in failed: '+ error.message)
+        } finally{
+            setLoading(false);
+        }
+    }
+    
     return (
         <SafeAreaView style = {styles.container}>
-     
+        <KeyboardAvoidingView>
             <View style = {styles.view}>
                 <ImageBackground
                     style = {styles.Image}
@@ -42,6 +80,9 @@ const Login=({navigation}: Loginprops)=> {
                         numberOfLines = { 1}
                         cursorColor={'#000'}
                         style = {styles.txtip}
+                        value={Email}
+                        onChangeText={(mail)=> setEmail(mail)}
+                        autoCapitalize="none"
                     />
                 </View>
                 <View style = {styles.view2}>
@@ -55,6 +96,11 @@ const Login=({navigation}: Loginprops)=> {
                         keyboardType='visible-password'
                         cursorColor={'#000'}
                         style = {styles.txtip}
+                        value={Password}
+                        onChangeText={(pass)=> setPassword(pass)}
+                        secureTextEntry={true}
+                        autoCapitalize="none"
+
                     />
                 <TouchableOpacity>
                     <Image 
@@ -63,11 +109,23 @@ const Login=({navigation}: Loginprops)=> {
                     />
                 </TouchableOpacity>
                 </View>
-                <View style = {styles.view2}>
+                {/*<View style = {styles.view2}>
                     <TouchableOpacity style = {styles.btn} onPress={()=> navigation.replace('Home')}>
                         <Text style = {styles.txt2}> Login </Text>
                     </TouchableOpacity>
-                </View>
+    </View>*/}
+                {loading ? (
+                    <ActivityIndicator color="#0000ff"/>
+                ) : (
+                    <>
+                        {/*<Button title="login"  onPress={signIn}/>*/}
+                        <View style = {styles.view2}>
+                    <TouchableOpacity style = {styles.btn} onPress={signIn}>
+                        <Text style = {styles.txt2}> Login </Text>
+                    </TouchableOpacity>
+    </View>
+                    </>
+                )}
             </View>
 
             
@@ -95,12 +153,12 @@ const Login=({navigation}: Loginprops)=> {
                 </TouchableOpacity>
             </View>
             <TouchableOpacity style = {styles.view7} onPress={()=> navigation.replace('Signup')}>
-                <Text style = {styles.continue}>Don't have an account?<Text style = {styles.lgn}> Sign up</Text> </Text>
+                <Text style = {styles.continue}>Don't have an account?<Text style={styles.lgn}> Sign up</Text> </Text>
             </TouchableOpacity>
 
             
 
-     
+        </KeyboardAvoidingView>
         </SafeAreaView>
        )
     }     
@@ -109,6 +167,7 @@ const Login=({navigation}: Loginprops)=> {
     const styles = StyleSheet.create({
         container:{
             flex: 1,
+            backgroundColor: '#E5F1F1',
             paddingTop: Platform.OS === 'android' ? 40 : 0,
 
         },
